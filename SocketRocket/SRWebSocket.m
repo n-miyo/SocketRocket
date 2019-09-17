@@ -506,7 +506,10 @@ static __strong NSData *CRLFCRLF;
     CFHTTPMessageSetHeaderFieldValue(request, CFSTR("Host"), (__bridge CFStringRef)(_url.port ? [NSString stringWithFormat:@"%@:%@", _url.host, _url.port] : _url.host));
         
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
-    SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
+    int result = SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
+    if (result != 0) {
+        //TODO: (nlutsenko) Check if there was an error.
+     }
     
     if ([keyBytes respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
         _secKey = [keyBytes base64EncodedStringWithOptions:0];
@@ -650,6 +653,16 @@ static __strong NSData *CRLFCRLF;
         case NSURLNetworkServiceTypeVoice:
             networkServiceType = NSStreamNetworkServiceTypeVoice;
             break;
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101200 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 100000 || __TV_OS_VERSION_MAX_ALLOWED >= 100000 || __WATCH_OS_VERSION_MAX_ALLOWED >= 30000)
+        case NSURLNetworkServiceTypeCallSignaling:
+            networkServiceType = NSStreamNetworkServiceTypeCallSignaling;
+            break;
+#endif
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101400 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __TV_OS_VERSION_MAX_ALLOWED >= 120000 || __WATCH_OS_VERSION_MAX_ALLOWED >= 50000)
+        case NSURLNetworkServiceTypeResponsiveData:
+            networkServiceType = NSStreamNetworkServiceTypeVoice; // XXX
+            break;
+#endif
     }
     
     if (networkServiceType != nil) {
@@ -1482,7 +1495,10 @@ static const size_t SRFrameHeaderOverhead = 32;
         }
     } else {
         uint8_t *mask_key = frame_buffer + frame_buffer_size;
-        SecRandomCopyBytes(kSecRandomDefault, sizeof(uint32_t), (uint8_t *)mask_key);
+        int result = SecRandomCopyBytes(kSecRandomDefault, sizeof(uint32_t), (uint8_t *)mask_key);
+        if (result != 0) {
+            //TODO: (nlutsenko) Check if there was an error.
+        }
         frame_buffer_size += sizeof(uint32_t);
         
         // TODO: could probably optimize this with SIMD
