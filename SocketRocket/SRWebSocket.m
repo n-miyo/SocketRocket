@@ -645,8 +645,10 @@ static __strong NSData *CRLFCRLF;
             break;
         }
         case NSURLNetworkServiceTypeVideo:
+#if (__MAC_OS_X_VERSION_MAX_ALLOWED >= 101500 || __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __TV_OS_VERSION_MAX_ALLOWED >= 130000 || __WATCH_OS_VERSION_MAX_ALLOWED >= 60000)  // Document says iOS 7.0 or later, but it's only defined over iOS 13.0.
         case NSURLNetworkServiceTypeAVStreaming: // XXX
         case NSURLNetworkServiceTypeResponsiveAV: // XXX
+#endif
             networkServiceType = NSStreamNetworkServiceTypeVideo;
             break;
         case NSURLNetworkServiceTypeBackground:
