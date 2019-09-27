@@ -645,6 +645,8 @@ static __strong NSData *CRLFCRLF;
             break;
         }
         case NSURLNetworkServiceTypeVideo:
+        case NSURLNetworkServiceTypeAVStreaming: // XXX
+        case NSURLNetworkServiceTypeResponsiveAV: // XXX
             networkServiceType = NSStreamNetworkServiceTypeVideo;
             break;
         case NSURLNetworkServiceTypeBackground:
